@@ -292,51 +292,59 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <div className="h-10 w-10 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                <Shield className="h-6 w-6 text-white" />
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Enhanced Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
+      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse delay-1000"></div>
+      <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse delay-500"></div>
+      
+      <div className="relative z-10">
+        {/* Enhanced Header */}
+        <div className="bg-white/10 backdrop-blur-lg shadow-2xl border-b border-white/20">
+          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+            <div className="flex justify-between items-center py-6">
+              <div className="flex items-center">
+                <div className="h-14 w-14 admin-gradient rounded-xl flex items-center justify-center mr-4 shadow-xl border border-white/20">
+                  <Shield className="h-7 w-7 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Admin Dashboard</h1>
+                  <p className="text-sm text-white/80 font-medium">EduPrajna Reporting System</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl font-semibold text-slate-800">Admin Dashboard</h1>
-                <p className="text-sm text-slate-600">EduPrajna Reporting System</p>
+              <div className="flex items-center space-x-6">
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-white">Administrator</p>
+                  <p className="text-xs text-white/70 font-medium">{user?.username || 'Admin'}</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => logout()}
+                  className="flex items-center border-2 border-white/20 text-white hover:bg-red-500 hover:border-red-500 transition-all duration-200 transform hover:scale-105"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
               </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-slate-700">Administrator</p>
-                <p className="text-xs text-slate-500">{user?.username || 'Admin'}</p>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => logout()}
-                className="text-slate-600 hover:text-slate-800"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        {/* Filters */}
-        <Card className="shadow-sm mb-6">
-          <CardHeader className="border-b border-slate-200">
-            <CardTitle className="text-lg font-semibold text-slate-800">
-              Report Filters & Export
-            </CardTitle>
-          </CardHeader>
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+          {/* Filters */}
+          <Card className="bg-white/10 backdrop-blur-lg shadow-2xl border-0 mb-6">
+            <CardHeader className="border-b border-white/20 bg-gradient-to-r from-blue-500/10 to-purple-500/10">
+              <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Report Filters & Export
+              </CardTitle>
+            </CardHeader>
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               <div>
-                <Label htmlFor="date-range" className="block text-sm font-medium text-slate-700 mb-2">
+                <Label htmlFor="date-range" className="block text-sm font-medium text-white mb-2">
                   Date Range
                 </Label>
                 <Select onValueChange={handleDateRangeChange} value={filters.dateRange || ""}>
@@ -428,16 +436,16 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Reports Table */}
-        <Card className="shadow-sm">
-          <CardHeader className="border-b border-slate-200">
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-lg font-semibold text-slate-800">
-                Daily Reports
-              </CardTitle>
-              <span className="text-sm text-slate-600">
-                Showing {reportsData?.reports?.length || 0} reports
-              </span>
+          {/* Reports Table */}
+          <Card className="bg-white/10 backdrop-blur-lg shadow-2xl border-0">
+            <CardHeader className="border-b border-white/20 bg-gradient-to-r from-blue-500/10 to-purple-500/10">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  Daily Reports
+                </CardTitle>
+                <span className="text-sm text-white/70">
+                  Showing {reportsData?.reports?.length || 0} reports
+                </span>
             </div>
           </CardHeader>
           
@@ -854,6 +862,7 @@ export default function AdminDashboard() {
           )}
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

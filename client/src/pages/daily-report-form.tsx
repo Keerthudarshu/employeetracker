@@ -85,47 +85,55 @@ export default function DailyReportForm() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <div className="h-10 w-10 bg-primary rounded-lg flex items-center justify-center mr-3">
-                <Building className="h-6 w-6 text-white" />
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Enhanced Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50"></div>
+      <div className="absolute top-0 left-0 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-1000"></div>
+      <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-500"></div>
+      
+      <div className="relative z-10">
+        {/* Enhanced Header */}
+        <div className="card-gradient shadow-xl border-0 mb-6">
+          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+            <div className="flex justify-between items-center py-6">
+              <div className="flex items-center">
+                <div className="h-14 w-14 gradient-bg rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                  <Building className="h-7 w-7 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">EduPrajna</h1>
+                  <p className="text-sm text-muted-foreground font-medium">Employee Reporting Portal</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl font-semibold text-slate-800">EduPrajna</h1>
-                <p className="text-sm text-slate-600">Employee Reporting</p>
+              <div className="flex items-center space-x-6">
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-foreground">{user.employeeName}</p>
+                  <p className="text-xs text-muted-foreground font-medium">{user.employeeId}</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={logout}
+                  className="flex items-center border-2 hover:bg-destructive hover:text-white transition-all duration-200 transform hover:scale-105"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
               </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-slate-700">{user.employeeName}</p>
-                <p className="text-xs text-slate-500">{user.employeeId}</p>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={logout}
-                className="text-slate-600 hover:text-slate-800"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <Card className="shadow-sm">
-          <CardHeader className="border-b border-slate-200">
-            <CardTitle className="text-xl font-semibold text-slate-800">
-              Daily Report Submission
-            </CardTitle>
-            <p className="text-sm text-slate-600">{today}</p>
-          </CardHeader>
+        {/* Main Content */}
+        <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+          <Card className="card-gradient shadow-xl border-0">
+            <CardHeader className="border-b border-border/20 bg-gradient-to-r from-purple-50 to-blue-50 rounded-t-lg">
+              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                Daily Report Submission
+              </CardTitle>
+              <p className="text-sm text-muted-foreground font-medium">{today}</p>
+            </CardHeader>
           
           <CardContent className="p-6">
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -337,6 +345,7 @@ export default function DailyReportForm() {
             </form>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );

@@ -65,37 +65,44 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
-      <Card className="w-full max-w-md">
-        <CardContent className="pt-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
+      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse delay-1000"></div>
+      <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse delay-500"></div>
+      
+      <Card className="w-full max-w-md shadow-2xl border-0 relative z-10 bg-white/10 backdrop-blur-lg">
+        <CardContent className="pt-8 pb-8">
           <div className="text-center mb-8">
-            <div className="mx-auto h-16 w-16 bg-slate-800 rounded-full flex items-center justify-center mb-6">
-              <Shield className="h-8 w-8 text-white" />
+            <div className="mx-auto h-20 w-20 admin-gradient rounded-2xl flex items-center justify-center mb-6 shadow-xl border border-white/20">
+              <Shield className="h-10 w-10 text-white drop-shadow-sm" />
             </div>
-            <h2 className="text-3xl font-bold text-slate-800">Admin Portal</h2>
-            <p className="mt-2 text-sm text-slate-600">EduPrajna Reporting System</p>
-            <p className="mt-4 text-lg font-semibold text-slate-700">Administrator Login</p>
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Admin Portal</h2>
+            <p className="mt-2 text-sm text-white/80 font-medium">EduPrajna Reporting System</p>
+            <p className="mt-4 text-xl font-semibold text-white">Secure Access</p>
+            <p className="text-sm text-white/70">Administrator Dashboard Login</p>
           </div>
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div>
-              <Label htmlFor="username" className="block text-sm font-medium text-slate-700 mb-2">
+            <div className="space-y-2">
+              <Label htmlFor="username" className="text-sm font-semibold text-white">
                 Username
               </Label>
               <Input
                 id="username"
                 type="text"
                 placeholder="Enter admin username"
-                className="h-12 focus:ring-slate-800 focus:border-slate-800"
+                className="h-12 input-focus border-2 border-white/20 bg-white/10 text-white placeholder:text-white/60 focus:border-blue-400 transition-all duration-200 backdrop-blur-sm"
                 {...form.register("username")}
               />
               {form.formState.errors.username && (
-                <p className="mt-1 text-sm text-red-600">{form.formState.errors.username.message}</p>
+                <p className="mt-1 text-sm text-red-400 font-medium">{form.formState.errors.username.message}</p>
               )}
             </div>
 
-            <div>
-              <Label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-2">
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-semibold text-white">
                 Password
               </Label>
               <div className="relative">
@@ -103,41 +110,41 @@ export default function AdminLogin() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter admin password"
-                  className="h-12 pr-10 focus:ring-slate-800 focus:border-slate-800"
+                  className="h-12 pr-12 input-focus border-2 border-white/20 bg-white/10 text-white placeholder:text-white/60 focus:border-blue-400 transition-all duration-200 backdrop-blur-sm"
                   {...form.register("password")}
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-white/10 rounded-r-lg transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-slate-400" />
+                    <EyeOff className="h-5 w-5 text-white/60 hover:text-white transition-colors" />
                   ) : (
-                    <Eye className="h-4 w-4 text-slate-400" />
+                    <Eye className="h-5 w-5 text-white/60 hover:text-white transition-colors" />
                   )}
                 </button>
               </div>
               {form.formState.errors.password && (
-                <p className="mt-1 text-sm text-red-600">{form.formState.errors.password.message}</p>
+                <p className="mt-1 text-sm text-red-400 font-medium">{form.formState.errors.password.message}</p>
               )}
             </div>
 
             <Button
               type="submit"
-              className="w-full h-12 bg-slate-800 hover:bg-slate-900 text-white font-medium"
+              className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? (
                 <div className="flex items-center">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                   Signing in...
                 </div>
               ) : (
-                <>
-                  <Shield className="h-4 w-4 mr-2" />
-                  Admin Sign In
-                </>
+                <div className="flex items-center">
+                  <Shield className="h-5 w-5 mr-2" />
+                  Access Admin Dashboard
+                </div>
               )}
             </Button>
 
