@@ -14,20 +14,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building, LogOut, Send } from "lucide-react";
 
-const reportSchema = z.object({
-  numberOfDials: z.number().min(0, "Must be 0 or greater"),
-  connectedCalls: z.number().min(0, "Must be 0 or greater"),
-  positiveProspect: z.number().min(0, "Must be 0 or greater"),
-  deadCalls: z.number().min(0, "Must be 0 or greater"),
-  demos: z.number().min(0, "Must be 0 or greater"),
-  admission: z.number().min(0, "Must be 0 or greater"),
-  clientVisit: z.number().min(0, "Must be 0 or greater"),
-  clientClosing: z.number().min(0, "Must be 0 or greater"),
-  backdoorCalls: z.number().min(0, "Must be 0 or greater"),
-  postersDone: z.number().min(0, "Must be 0 or greater").optional(),
-});
+import { dailyReportFormSchema, type DailyReportForm } from "@shared/schema";
 
-type ReportForm = z.infer<typeof reportSchema>;
+type ReportForm = DailyReportForm;
 
 export default function DailyReportForm() {
   const [, setLocation] = useLocation();
@@ -35,7 +24,7 @@ export default function DailyReportForm() {
   const { user, logout, isAuthenticated } = useAuth();
 
   const form = useForm<ReportForm>({
-    resolver: zodResolver(reportSchema),
+    resolver: zodResolver(dailyReportFormSchema),
     defaultValues: {
       numberOfDials: 0,
       connectedCalls: 0,

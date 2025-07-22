@@ -51,10 +51,8 @@ export const insertEmployeeSchema = createInsertSchema(employees).omit({
   updatedAt: true,
 });
 
-export const insertDailyReportSchema = createInsertSchema(dailyReports).omit({
-  id: true,
-  createdAt: true,
-}).extend({
+// Schema for frontend form submission (without server-managed fields)
+export const dailyReportFormSchema = z.object({
   numberOfDials: z.number().min(0),
   connectedCalls: z.number().min(0),
   positiveProspect: z.number().min(0),
@@ -65,6 +63,12 @@ export const insertDailyReportSchema = createInsertSchema(dailyReports).omit({
   clientClosing: z.number().min(0),
   backdoorCalls: z.number().min(0),
   postersDone: z.number().min(0).optional(),
+});
+
+// Full schema for database insertion (includes all fields)
+export const insertDailyReportSchema = createInsertSchema(dailyReports).omit({
+  id: true,
+  createdAt: true,
 });
 
 export const insertAdminSchema = createInsertSchema(admins).omit({
@@ -87,6 +91,7 @@ export type Employee = typeof employees.$inferSelect;
 export type InsertEmployee = z.infer<typeof insertEmployeeSchema>;
 export type DailyReport = typeof dailyReports.$inferSelect;
 export type InsertDailyReport = z.infer<typeof insertDailyReportSchema>;
+export type DailyReportForm = z.infer<typeof dailyReportFormSchema>;
 export type Admin = typeof admins.$inferSelect;
 export type InsertAdmin = z.infer<typeof insertAdminSchema>;
 export type Session = typeof sessions.$inferSelect;

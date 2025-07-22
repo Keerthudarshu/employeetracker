@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { 
   employeeLoginSchema, 
   adminLoginSchema, 
-  insertDailyReportSchema 
+  dailyReportFormSchema 
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -138,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Employee not found" });
       }
 
-      const reportData = insertDailyReportSchema.parse(req.body);
+      const reportData = dailyReportFormSchema.parse(req.body);
       const today = new Date().toISOString().split('T')[0];
 
       // Check if report already exists for today
