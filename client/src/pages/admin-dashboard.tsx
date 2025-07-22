@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Shield, LogOut, Filter, Download, FileSpreadsheet, Eye, ChevronLeft, ChevronRight, Trash2, Edit3, BarChart3, PieChart, TrendingUp } from "lucide-react";
+import { Shield, LogOut, Filter, Download, FileSpreadsheet, Eye, ChevronLeft, ChevronRight, Trash2, Edit3, BarChart3, PieChart, TrendingUp, Users } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -314,6 +314,15 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="flex items-center space-x-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setLocation("/admin/employees")}
+                  className="flex items-center border-2 border-white/20 text-white hover:bg-blue-500 hover:border-blue-500 transition-all duration-200 transform hover:scale-105"
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Manage Employees
+                </Button>
                 <div className="text-right">
                   <p className="text-sm font-semibold text-white">Administrator</p>
                   <p className="text-xs text-white/70 font-medium">{user?.username || 'Admin'}</p>

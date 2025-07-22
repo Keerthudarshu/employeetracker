@@ -11,6 +11,7 @@ import EmployeeLogin from "@/pages/employee-login";
 import DailyReportForm from "@/pages/daily-report-form";
 import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
+import EmployeeManagement from "@/pages/employee-management";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -40,6 +41,9 @@ function Router() {
       }} />
       <Route path="/admin/dashboard" component={() => {
         return isAuthenticated && isAdmin ? <AdminDashboard /> : <AdminLogin />;
+      }} />
+      <Route path="/admin/employees" component={() => {
+        return isAuthenticated && isAdmin ? <EmployeeManagement /> : <AdminLogin />;
       }} />
       
       {/* Fallback */}

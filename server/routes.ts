@@ -4,7 +4,9 @@ import { storage } from "./storage";
 import { 
   employeeLoginSchema, 
   adminLoginSchema, 
-  dailyReportFormSchema 
+  dailyReportFormSchema,
+  createEmployeeSchema,
+  updateEmployeeSchema 
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -324,6 +326,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Delete report error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Employee Management Routes for Admin
+  
+  // Get all employees
+  app.get("/api/admin/employees", authenticateAdmin, async (req, res) => {
+    try {
+      const employees = await storage.getAllEmployees();
+      
+      // Remove password hashes from response
+      const safeEmployees = employees.map(emp => ({
+        id: emp.id,
+        employeeId: emp.employeeId,
+        employeeName: emp.employeeName,
+        createdAt: emp.createdAt,
+        updatedAt: emp.updatedAt
+      }));
+
+      res.json({ employees: safeEmployees });
+    } catch (error) {
+      console.error("Get employees error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Create new employee
+  app.post("/api/admin/employees", authenticateAdmin, async (req, res) => {
+    try {
+      const { employeeId, employeeName, password } = createEmployeeSchema.parse(req.body);
+      
+      // Check if employee ID already exists
+      const existingEmployee = await storage.getEmployeeByEmployeeId(employeeId);
+      if (existingEmployee) {
+        return res.status(409).json({ message: "Employee ID already exists" });
+      }
+
+      const employee = await storage.createEmployee({
+        employeeId,
+        employeeName,
+        passwordHash: password // Will be hashed in storage
+      });
+
+      res.json({
+        message: "Employee created successfully",
+        employee: {
+          id: employee.id,
+          employeeId: employee.employeeId,
+          employeeName: employee.employeeName,
+          createdAt: employee.createdAt
+        }
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid input", errors: error.errors });
+      }
+      console.error("Create employee error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update employee
+  app.put("/api/admin/employees/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = updateEmployeeSchema.parse(req.body);
+      
+      // Check if employee exists
+      const existingEmployee = await storage.getEmployee(id);
+      if (!existingEmployee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+
+      // If updating employee ID, check if new ID is already taken
+      if (updates.employeeId && updates.employeeId !== existingEmployee.employeeId) {
+        const duplicateEmployee = await storage.getEmployeeByEmployeeId(updates.employeeId);
+        if (duplicateEmployee) {
+          return res.status(409).json({ message: "Employee ID already exists" });
+        }
+      }
+
+      const updateData: any = {};
+      if (updates.employeeId) updateData.employeeId = updates.employeeId;
+      if (updates.employeeName) updateData.employeeName = updates.employeeName;
+      if (updates.password) updateData.passwordHash = updates.password; // Will be hashed in storage
+
+      const updatedEmployee = await storage.updateEmployee(id, updateData);
+      if (!updatedEmployee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+
+      res.json({
+        message: "Employee updated successfully",
+        employee: {
+          id: updatedEmployee.id,
+          employeeId: updatedEmployee.employeeId,
+          employeeName: updatedEmployee.employeeName,
+          updatedAt: updatedEmployee.updatedAt
+        }
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid input", errors: error.errors });
+      }
+      console.error("Update employee error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete employee
+  app.delete("/api/admin/employees/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const deleted = await storage.deleteEmployee(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+
+      res.json({
+        message: "Employee deleted successfully"
+      });
+    } catch (error) {
+      console.error("Delete employee error:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   });

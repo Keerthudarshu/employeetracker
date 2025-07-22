@@ -19,7 +19,10 @@ export interface IStorage {
   // Employee operations
   getEmployee(id: string): Promise<Employee | undefined>;
   getEmployeeByEmployeeId(employeeId: string): Promise<Employee | undefined>;
+  getAllEmployees(): Promise<Employee[]>;
   createEmployee(employee: InsertEmployee): Promise<Employee>;
+  updateEmployee(id: string, updates: Partial<InsertEmployee>): Promise<Employee | undefined>;
+  deleteEmployee(id: string): Promise<boolean>;
   validateEmployeeCredentials(employeeId: string, password: string): Promise<Employee | null>;
 
   // Daily report operations
@@ -60,6 +63,10 @@ export class DatabaseStorage implements IStorage {
     return employee;
   }
 
+  async getAllEmployees(): Promise<Employee[]> {
+    return await db.select().from(employees).orderBy(asc(employees.employeeName));
+  }
+
   async createEmployee(insertEmployee: InsertEmployee): Promise<Employee> {
     const passwordHash = await bcrypt.hash(insertEmployee.passwordHash, 10);
     const [employee] = await db
@@ -67,6 +74,26 @@ export class DatabaseStorage implements IStorage {
       .values({ ...insertEmployee, passwordHash })
       .returning();
     return employee;
+  }
+
+  async updateEmployee(id: string, updates: Partial<InsertEmployee>): Promise<Employee | undefined> {
+    const updateData: any = { ...updates };
+    if (updateData.passwordHash) {
+      updateData.passwordHash = await bcrypt.hash(updateData.passwordHash, 10);
+    }
+    updateData.updatedAt = new Date();
+
+    const [employee] = await db
+      .update(employees)
+      .set(updateData)
+      .where(eq(employees.id, id))
+      .returning();
+    return employee;
+  }
+
+  async deleteEmployee(id: string): Promise<boolean> {
+    const result = await db.delete(employees).where(eq(employees.id, id));
+    return (result.rowCount ?? 0) > 0;
   }
 
   async validateEmployeeCredentials(employeeId: string, password: string): Promise<Employee | null> {

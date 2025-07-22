@@ -86,6 +86,20 @@ export const adminLoginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+// Schema for creating employees from admin panel
+export const createEmployeeSchema = z.object({
+  employeeId: z.string().min(1, "Employee ID is required"),
+  employeeName: z.string().min(1, "Employee name is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+// Schema for updating employees from admin panel
+export const updateEmployeeSchema = z.object({
+  employeeId: z.string().min(1, "Employee ID is required").optional(),
+  employeeName: z.string().min(1, "Employee name is required").optional(),
+  password: z.string().min(6, "Password must be at least 6 characters").optional(),
+});
+
 // Types
 export type Employee = typeof employees.$inferSelect;
 export type InsertEmployee = z.infer<typeof insertEmployeeSchema>;
