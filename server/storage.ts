@@ -33,6 +33,8 @@ export interface IStorage {
   }): Promise<DailyReport[]>;
   getDailyReportsByDateRange(startDate: Date, endDate: Date): Promise<DailyReport[]>;
   checkExistingReport(employeeId: string, date: Date): Promise<DailyReport | undefined>;
+  updateDailyReport(id: string, report: Partial<InsertDailyReport>): Promise<DailyReport | undefined>;
+  deleteDailyReport(id: string): Promise<boolean>;
 
   // Admin operations
   getAdmin(id: string): Promise<Admin | undefined>;
@@ -90,8 +92,6 @@ export class DatabaseStorage implements IStorage {
     limit?: number;
     offset?: number;
   }): Promise<DailyReport[]> {
-    let query = db.select().from(dailyReports);
-    
     const conditions = [];
     if (filters?.employeeId) {
       conditions.push(eq(dailyReports.employeeId, filters.employeeId));
@@ -103,20 +103,22 @@ export class DatabaseStorage implements IStorage {
       conditions.push(lte(dailyReports.submissionDate, filters.endDate.toISOString().split('T')[0]));
     }
 
+    let baseQuery = db.select().from(dailyReports);
+
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      baseQuery = baseQuery.where(and(...conditions));
     }
 
-    query = query.orderBy(desc(dailyReports.submissionDate), desc(dailyReports.createdAt));
+    baseQuery = baseQuery.orderBy(desc(dailyReports.submissionDate), desc(dailyReports.createdAt));
 
     if (filters?.limit) {
-      query = query.limit(filters.limit);
+      baseQuery = baseQuery.limit(filters.limit);
     }
     if (filters?.offset) {
-      query = query.offset(filters.offset);
+      baseQuery = baseQuery.offset(filters.offset);
     }
 
-    return await query;
+    return await baseQuery;
   }
 
   async getDailyReportsByDateRange(startDate: Date, endDate: Date): Promise<DailyReport[]> {
@@ -135,6 +137,22 @@ export class DatabaseStorage implements IStorage {
         eq(dailyReports.submissionDate, date.toISOString().split('T')[0])
       ));
     return report;
+  }
+
+  async updateDailyReport(id: string, report: Partial<InsertDailyReport>): Promise<DailyReport | undefined> {
+    const [updatedReport] = await db
+      .update(dailyReports)
+      .set(report)
+      .where(eq(dailyReports.id, id))
+      .returning();
+    return updatedReport;
+  }
+
+  async deleteDailyReport(id: string): Promise<boolean> {
+    const result = await db
+      .delete(dailyReports)
+      .where(eq(dailyReports.id, id));
+    return (result.rowCount ?? 0) > 0;
   }
 
   async getAdmin(id: string): Promise<Admin | undefined> {

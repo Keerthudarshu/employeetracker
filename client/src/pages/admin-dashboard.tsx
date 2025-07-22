@@ -12,7 +12,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Shield, LogOut, Filter, Download, FileSpreadsheet, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Shield, LogOut, Filter, Download, FileSpreadsheet, Eye, ChevronLeft, ChevronRight, Trash2, Edit3, BarChart3, PieChart, TrendingUp } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
+import { Bar, Line, Pie } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend);
 
 interface ReportFilters {
   employeeId?: string;
@@ -32,6 +39,12 @@ export default function AdminDashboard() {
     page: 1,
     limit: 25,
   });
+
+  const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [chartsDialogOpen, setChartsDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated || !authManager.isAdmin()) {
@@ -114,6 +127,120 @@ export default function AdminDashboard() {
       });
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (reportId: string) => {
+      const headers = authManager.getAuthHeaders();
+      await apiRequest('DELETE', `/api/admin/reports/${reportId}`, undefined, headers);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Report deleted",
+        description: "Report has been deleted successfully.",
+      });
+      setDeleteDialogOpen(false);
+      refetch();
+    },
+    onError: () => {
+      toast({
+        title: "Delete failed",
+        description: "Failed to delete report.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const editMutation = useMutation({
+    mutationFn: async ({ reportId, data }: { reportId: string; data: any }) => {
+      const headers = authManager.getAuthHeaders();
+      await apiRequest('PUT', `/api/admin/reports/${reportId}`, data, headers);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Report updated",
+        description: "Report has been updated successfully.",
+      });
+      setEditDialogOpen(false);
+      refetch();
+    },
+    onError: () => {
+      toast({
+        title: "Update failed",
+        description: "Failed to update report.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Chart data preparation functions
+  const generateChartData = () => {
+    if (!reportsData?.reports?.length) return null;
+
+    const reports = reportsData.reports;
+    const labels = reports.map((r: any) => r.submissionDate);
+    
+    return {
+      dailyMetrics: {
+        labels,
+        datasets: [
+          {
+            label: 'Number of Dials',
+            data: reports.map((r: any) => r.numberOfDials),
+            backgroundColor: 'rgba(59, 130, 246, 0.5)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 2,
+          },
+          {
+            label: 'Connected Calls',
+            data: reports.map((r: any) => r.connectedCalls),
+            backgroundColor: 'rgba(16, 185, 129, 0.5)',
+            borderColor: 'rgba(16, 185, 129, 1)',
+            borderWidth: 2,
+          },
+          {
+            label: 'Demos',
+            data: reports.map((r: any) => r.demos),
+            backgroundColor: 'rgba(245, 158, 11, 0.5)',
+            borderColor: 'rgba(245, 158, 11, 1)',
+            borderWidth: 2,
+          },
+          {
+            label: 'Admissions',
+            data: reports.map((r: any) => r.admission),
+            backgroundColor: 'rgba(239, 68, 68, 0.5)',
+            borderColor: 'rgba(239, 68, 68, 1)',
+            borderWidth: 2,
+          },
+        ],
+      },
+      performancePie: {
+        labels: ['Positive Prospects', 'Dead Calls', 'Demos', 'Admissions'],
+        datasets: [
+          {
+            data: [
+              reports.reduce((sum: number, r: any) => sum + r.positiveProspect, 0),
+              reports.reduce((sum: number, r: any) => sum + r.deadCalls, 0),
+              reports.reduce((sum: number, r: any) => sum + r.demos, 0),
+              reports.reduce((sum: number, r: any) => sum + r.admission, 0),
+            ],
+            backgroundColor: [
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(239, 68, 68, 0.8)',
+              'rgba(245, 158, 11, 0.8)',
+              'rgba(139, 92, 246, 0.8)',
+            ],
+            borderColor: [
+              'rgba(16, 185, 129, 1)',
+              'rgba(239, 68, 68, 1)',
+              'rgba(245, 158, 11, 1)',
+              'rgba(139, 92, 246, 1)',
+            ],
+            borderWidth: 2,
+          },
+        ],
+      },
+    };
+  };
 
   const handleDateRangeChange = (value: string) => {
     const today = new Date();
@@ -289,6 +416,14 @@ export default function AdminDashboard() {
               <Button onClick={clearFilters} variant="outline">
                 Clear
               </Button>
+              <Button
+                onClick={() => setChartsDialogOpen(true)}
+                variant="outline"
+                className="border-purple-600 text-purple-600 hover:bg-purple-50"
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                View Charts
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -347,20 +482,41 @@ export default function AdminDashboard() {
                         <TableCell>{report.demos}</TableCell>
                         <TableCell>{report.admission}</TableCell>
                         <TableCell>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-primary hover:text-blue-700"
-                            onClick={() => {
-                              toast({
-                                title: "Report Details",
-                                description: `Viewing detailed report for ${report.employeeName}`,
-                              });
-                            }}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
+                          <div className="flex space-x-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-blue-600 hover:text-blue-700"
+                              onClick={() => {
+                                setSelectedReport(report);
+                                setViewDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-yellow-600 hover:text-yellow-700"
+                              onClick={() => {
+                                setSelectedReport(report);
+                                setEditDialogOpen(true);
+                              }}
+                            >
+                              <Edit3 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-600 hover:text-red-700"
+                              onClick={() => {
+                                setSelectedReport(report);
+                                setDeleteDialogOpen(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -402,6 +558,302 @@ export default function AdminDashboard() {
           )}
         </Card>
       </div>
+
+      {/* View Report Modal */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Report Details</DialogTitle>
+            <DialogDescription>
+              Detailed view of daily report for {selectedReport?.employeeName}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedReport && (
+            <div className="grid grid-cols-2 gap-4 py-4">
+              <div className="space-y-2">
+                <div><strong>Employee:</strong> {selectedReport.employeeName}</div>
+                <div><strong>Employee ID:</strong> {selectedReport.employeeId}</div>
+                <div><strong>Date:</strong> {selectedReport.submissionDate}</div>
+                <div><strong>Number of Dials:</strong> {selectedReport.numberOfDials}</div>
+                <div><strong>Connected Calls:</strong> {selectedReport.connectedCalls}</div>
+                <div><strong>Positive Prospects:</strong> {selectedReport.positiveProspect}</div>
+              </div>
+              <div className="space-y-2">
+                <div><strong>Dead Calls:</strong> {selectedReport.deadCalls}</div>
+                <div><strong>Demos:</strong> {selectedReport.demos}</div>
+                <div><strong>Admissions:</strong> {selectedReport.admission}</div>
+                <div><strong>Client Visits:</strong> {selectedReport.clientVisit}</div>
+                <div><strong>Client Closings:</strong> {selectedReport.clientClosing}</div>
+                <div><strong>Backdoor Calls:</strong> {selectedReport.backdoorCalls}</div>
+                <div><strong>Posters Done:</strong> {selectedReport.postersDone || 0}</div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Report Modal */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Report</DialogTitle>
+            <DialogDescription>
+              Modify report data for {selectedReport?.employeeName}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedReport && (
+            <div className="grid grid-cols-2 gap-4 py-4">
+              <div className="space-y-4">
+                <div>
+                  <Label>Number of Dials</Label>
+                  <Input 
+                    type="number" 
+                    defaultValue={selectedReport.numberOfDials}
+                    onChange={(e) => setSelectedReport({...selectedReport, numberOfDials: parseInt(e.target.value)})}
+                  />
+                </div>
+                <div>
+                  <Label>Connected Calls</Label>
+                  <Input 
+                    type="number" 
+                    defaultValue={selectedReport.connectedCalls}
+                    onChange={(e) => setSelectedReport({...selectedReport, connectedCalls: parseInt(e.target.value)})}
+                  />
+                </div>
+                <div>
+                  <Label>Positive Prospects</Label>
+                  <Input 
+                    type="number" 
+                    defaultValue={selectedReport.positiveProspect}
+                    onChange={(e) => setSelectedReport({...selectedReport, positiveProspect: parseInt(e.target.value)})}
+                  />
+                </div>
+                <div>
+                  <Label>Dead Calls</Label>
+                  <Input 
+                    type="number" 
+                    defaultValue={selectedReport.deadCalls}
+                    onChange={(e) => setSelectedReport({...selectedReport, deadCalls: parseInt(e.target.value)})}
+                  />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <Label>Demos</Label>
+                  <Input 
+                    type="number" 
+                    defaultValue={selectedReport.demos}
+                    onChange={(e) => setSelectedReport({...selectedReport, demos: parseInt(e.target.value)})}
+                  />
+                </div>
+                <div>
+                  <Label>Admissions</Label>
+                  <Input 
+                    type="number" 
+                    defaultValue={selectedReport.admission}
+                    onChange={(e) => setSelectedReport({...selectedReport, admission: parseInt(e.target.value)})}
+                  />
+                </div>
+                <div>
+                  <Label>Client Visits</Label>
+                  <Input 
+                    type="number" 
+                    defaultValue={selectedReport.clientVisit}
+                    onChange={(e) => setSelectedReport({...selectedReport, clientVisit: parseInt(e.target.value)})}
+                  />
+                </div>
+                <div>
+                  <Label>Client Closings</Label>
+                  <Input 
+                    type="number" 
+                    defaultValue={selectedReport.clientClosing}
+                    onChange={(e) => setSelectedReport({...selectedReport, clientClosing: parseInt(e.target.value)})}
+                  />
+                </div>
+              </div>
+              <div className="col-span-2 space-y-4">
+                <div>
+                  <Label>Backdoor Calls</Label>
+                  <Input 
+                    type="number" 
+                    defaultValue={selectedReport.backdoorCalls}
+                    onChange={(e) => setSelectedReport({...selectedReport, backdoorCalls: parseInt(e.target.value)})}
+                  />
+                </div>
+                <div>
+                  <Label>Posters Done</Label>
+                  <Input 
+                    type="number" 
+                    defaultValue={selectedReport.postersDone || 0}
+                    onChange={(e) => setSelectedReport({...selectedReport, postersDone: parseInt(e.target.value)})}
+                  />
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={() => editMutation.mutate({ reportId: selectedReport.id, data: selectedReport })}
+                    disabled={editMutation.isPending}
+                  >
+                    {editMutation.isPending ? "Saving..." : "Save Changes"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Modal */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the report for{' '}
+              {selectedReport?.employeeName} on {selectedReport?.submissionDate}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => selectedReport && deleteMutation.mutate(selectedReport.id)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete Report"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Charts Modal */}
+      <Dialog open={chartsDialogOpen} onOpenChange={setChartsDialogOpen}>
+        <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <TrendingUp className="h-5 w-5 mr-2" />
+              Performance Analytics & Charts
+            </DialogTitle>
+            <DialogDescription>
+              Visual representation of employee performance data
+            </DialogDescription>
+          </DialogHeader>
+          
+          {generateChartData() && (
+            <Tabs defaultValue="daily" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="daily" className="flex items-center">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Daily Metrics
+                </TabsTrigger>
+                <TabsTrigger value="performance" className="flex items-center">
+                  <PieChart className="h-4 w-4 mr-2" />
+                  Performance Overview
+                </TabsTrigger>
+                <TabsTrigger value="trends" className="flex items-center">
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  Trends
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="daily" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Daily Performance Metrics</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-96">
+                      <Bar 
+                        data={generateChartData()!.dailyMetrics}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'top' as const,
+                            },
+                            title: {
+                              display: true,
+                              text: 'Daily Performance Comparison'
+                            }
+                          },
+                          scales: {
+                            y: {
+                              beginAtZero: true
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="performance" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Overall Performance Distribution</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-96">
+                      <Pie 
+                        data={generateChartData()!.performancePie}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'right' as const,
+                            },
+                            title: {
+                              display: true,
+                              text: 'Performance Breakdown'
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="trends" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Performance Trends</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-96">
+                      <Line 
+                        data={generateChartData()!.dailyMetrics}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'top' as const,
+                            },
+                            title: {
+                              display: true,
+                              text: 'Performance Trends Over Time'
+                            }
+                          },
+                          scales: {
+                            y: {
+                              beginAtZero: true
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

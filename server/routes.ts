@@ -285,6 +285,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update report
+  app.put("/api/admin/reports/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const reportData = dailyReportFormSchema.parse(req.body);
+
+      const updatedReport = await storage.updateDailyReport(id, reportData);
+      if (!updatedReport) {
+        return res.status(404).json({ message: "Report not found" });
+      }
+
+      res.json({
+        message: "Report updated successfully",
+        report: updatedReport
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid input", errors: error.errors });
+      }
+      console.error("Update report error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Delete report
+  app.delete("/api/admin/reports/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const deleted = await storage.deleteDailyReport(id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Report not found" });
+      }
+
+      res.json({
+        message: "Report deleted successfully"
+      });
+    } catch (error) {
+      console.error("Delete report error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Clean up expired sessions periodically
   setInterval(async () => {
     try {
