@@ -141,11 +141,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const reportData = dailyReportFormSchema.parse(req.body);
       const today = new Date().toISOString().split('T')[0];
 
-      // Check if report already exists for today
-      const existingReport = await storage.checkExistingReport(employee.employeeId, new Date(today));
-      if (existingReport) {
-        return res.status(409).json({ message: "Report for today already submitted" });
-      }
+      // Check if report already exists for today (disabled for testing)
+      // const existingReport = await storage.checkExistingReport(employee.employeeId, new Date(today));
+      // if (existingReport) {
+      //   return res.status(409).json({ message: "Report for today already submitted" });
+      // }
 
       const report = await storage.createDailyReport({
         ...reportData,

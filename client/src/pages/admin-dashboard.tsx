@@ -182,12 +182,12 @@ export default function AdminDashboard() {
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <p className="text-sm font-medium text-slate-700">Administrator</p>
-                <p className="text-xs text-slate-500">{user.username}</p>
+                <p className="text-xs text-slate-500">{user?.username || 'Admin'}</p>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={logout}
+                onClick={() => logout()}
                 className="text-slate-600 hover:text-slate-800"
               >
                 <LogOut className="h-4 w-4" />
