@@ -48,10 +48,8 @@ export default function EmployeeLogin() {
         title: "Login successful",
         description: "Welcome to EduPrajna reporting system!",
       });
-      // Use a slight delay to ensure state is updated before redirect
-      setTimeout(() => {
-        setLocation("/daily-report");
-      }, 100);
+      // Force a page reload to ensure authentication state is properly updated
+      window.location.href = "/daily-report";
     },
     onError: (error: any) => {
       toast({

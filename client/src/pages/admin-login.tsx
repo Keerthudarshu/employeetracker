@@ -48,10 +48,8 @@ export default function AdminLogin() {
         title: "Login successful",
         description: "Welcome to Admin Dashboard!",
       });
-      // Use a slight delay to ensure state is updated before redirect
-      setTimeout(() => {
-        setLocation("/admin/dashboard");
-      }, 100);
+      // Force a page reload to ensure authentication state is properly updated
+      window.location.href = "/admin/dashboard";
     },
     onError: (error: any) => {
       toast({
