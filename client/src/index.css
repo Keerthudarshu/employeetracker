@@ -4,25 +4,29 @@
 
 :root {
   --background: hsl(0, 0%, 100%);
-  --foreground: hsl(20, 14.3%, 4.1%);
-  --muted: hsl(60, 4.8%, 95.9%);
-  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --foreground: hsl(222, 84%, 5%);
+  --muted: hsl(210, 40%, 98%);
+  --muted-foreground: hsl(215, 16%, 47%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --popover-foreground: hsl(222, 84%, 5%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(20, 14.3%, 4.1%);
-  --border: hsl(20, 5.9%, 90%);
-  --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(219, 87%, 61%);
-  --primary-foreground: hsl(210, 100%, 98%);
-  --secondary: hsl(60, 4.8%, 95.9%);
-  --secondary-foreground: hsl(24, 9.8%, 10%);
-  --accent: hsl(60, 4.8%, 95.9%);
-  --accent-foreground: hsl(24, 9.8%, 10%);
-  --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(60, 9.1%, 97.8%);
-  --ring: hsl(20, 14.3%, 4.1%);
-  --radius: 0.5rem;
+  --card-foreground: hsl(222, 84%, 5%);
+  --border: hsl(214, 32%, 91%);
+  --input: hsl(214, 32%, 91%);
+  --primary: hsl(262, 83%, 58%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(210, 40%, 96%);
+  --secondary-foreground: hsl(222, 47%, 11%);
+  --accent: hsl(210, 40%, 96%);
+  --accent-foreground: hsl(222, 47%, 11%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(262, 83%, 58%);
+  --radius: 0.75rem;
+  --success: hsl(142, 76%, 36%);
+  --success-foreground: hsl(210, 40%, 98%);
+  --warning: hsl(38, 92%, 50%);
+  --warning-foreground: hsl(222, 84%, 5%);
 }
 
 .dark {
@@ -55,5 +59,30 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    background: linear-gradient(135deg, hsl(262, 83%, 98%) 0%, hsl(262, 83%, 95%) 100%);
+    min-height: 100vh;
+  }
+
+  .gradient-bg {
+    background: linear-gradient(135deg, hsl(262, 83%, 58%) 0%, hsl(220, 70%, 50%) 100%);
+  }
+
+  .card-gradient {
+    background: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(262, 83%, 99%) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid hsl(262, 83%, 90%);
+  }
+
+  .admin-gradient {
+    background: linear-gradient(135deg, hsl(222, 84%, 5%) 0%, hsl(222, 47%, 11%) 100%);
+  }
+
+  .input-focus {
+    transition: all 0.2s ease-in-out;
+  }
+
+  .input-focus:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px hsl(262, 83%, 58%, 0.15);
   }
 }
