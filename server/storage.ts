@@ -103,22 +103,22 @@ export class DatabaseStorage implements IStorage {
       conditions.push(lte(dailyReports.submissionDate, filters.endDate.toISOString().split('T')[0]));
     }
 
-    let baseQuery = db.select().from(dailyReports);
+    let query = db.select().from(dailyReports);
 
     if (conditions.length > 0) {
-      baseQuery = baseQuery.where(and(...conditions));
+      query = query.where(and(...conditions)) as typeof query;
     }
 
-    baseQuery = baseQuery.orderBy(desc(dailyReports.submissionDate), desc(dailyReports.createdAt));
+    query = query.orderBy(desc(dailyReports.submissionDate), desc(dailyReports.createdAt)) as typeof query;
 
     if (filters?.limit) {
-      baseQuery = baseQuery.limit(filters.limit);
+      query = query.limit(filters.limit) as typeof query;
     }
     if (filters?.offset) {
-      baseQuery = baseQuery.offset(filters.offset);
+      query = query.offset(filters.offset) as typeof query;
     }
 
-    return await baseQuery;
+    return await query;
   }
 
   async getDailyReportsByDateRange(startDate: Date, endDate: Date): Promise<DailyReport[]> {
