@@ -54,7 +54,55 @@ app.use((req, res, next) => {
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
-    serveStatic(app);
+    // In production/serverless, serve a simple HTML for the root route
+    app.get('/', (req, res) => {
+      res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Employee Tracker</title>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <style>
+            body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+            .container { max-width: 600px; margin: 0 auto; }
+            .btn { display: inline-block; padding: 10px 20px; margin: 10px; background: #007cba; color: white; text-decoration: none; border-radius: 5px; }
+            .btn:hover { background: #005a87; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>🏢 Employee Tracker System</h1>
+            <p>Welcome to the Employee Daily Reporting System</p>
+            <div>
+              <a href="/admin-login" class="btn">👨‍💼 Admin Login</a>
+              <a href="/employee-login" class="btn">👤 Employee Login</a>
+            </div>
+            <div style="margin-top: 30px;">
+              <h3>🔑 Test Credentials:</h3>
+              <p><strong>Admin:</strong> Username: admin, Password: admin123</p>
+              <p><strong>Employee:</strong> ID: EMP001, Password: employee123</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `);
+    });
+    
+    // Serve other routes as API endpoints
+    app.get('*', (req, res) => {
+      if (req.path.startsWith('/api')) {
+        res.status(404).json({ message: 'API endpoint not found' });
+      } else {
+        res.redirect('/');
+      }
+    });
+  }
+
+  // In serverless environments like Vercel, we don't need to start a server
+  if (process.env.VERCEL) {
+    // Just set up the routes for serverless
+    return app;
   }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
@@ -66,3 +114,6 @@ app.use((req, res, next) => {
     log(`serving on port ${port}`);
   });
 })();
+
+// Export the app for Vercel serverless functions
+export default app;

@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { storage } from './server/storage.js';
 
 async function setupProductionData() {
