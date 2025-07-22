@@ -48,7 +48,10 @@ export default function AdminLogin() {
         title: "Login successful",
         description: "Welcome to Admin Dashboard!",
       });
-      setLocation("/admin/dashboard");
+      // Use a slight delay to ensure state is updated before redirect
+      setTimeout(() => {
+        setLocation("/admin/dashboard");
+      }, 100);
     },
     onError: (error: any) => {
       toast({

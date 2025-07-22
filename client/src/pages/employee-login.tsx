@@ -48,7 +48,10 @@ export default function EmployeeLogin() {
         title: "Login successful",
         description: "Welcome to EduPrajna reporting system!",
       });
-      setLocation("/daily-report");
+      // Use a slight delay to ensure state is updated before redirect
+      setTimeout(() => {
+        setLocation("/daily-report");
+      }, 100);
     },
     onError: (error: any) => {
       toast({

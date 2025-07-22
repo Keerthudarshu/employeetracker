@@ -14,28 +14,32 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isEmployee, isAdmin, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <Switch>
       {/* Employee routes */}
-      <Route path="/" component={EmployeeLogin} />
+      <Route path="/">
+        {isAuthenticated && isEmployee ? <DailyReportForm /> : <EmployeeLogin />}
+      </Route>
       <Route path="/daily-report">
-        {isAuthenticated && authManager.isEmployee() ? (
-          <DailyReportForm />
-        ) : (
-          <EmployeeLogin />
-        )}
+        {isAuthenticated && isEmployee ? <DailyReportForm /> : <EmployeeLogin />}
       </Route>
       
       {/* Admin routes */}
-      <Route path="/admin" component={AdminLogin} />
+      <Route path="/admin">
+        {isAuthenticated && isAdmin ? <AdminDashboard /> : <AdminLogin />}
+      </Route>
       <Route path="/admin/dashboard">
-        {isAuthenticated && authManager.isAdmin() ? (
-          <AdminDashboard />
-        ) : (
-          <AdminLogin />
-        )}
+        {isAuthenticated && isAdmin ? <AdminDashboard /> : <AdminLogin />}
       </Route>
       
       {/* Fallback */}

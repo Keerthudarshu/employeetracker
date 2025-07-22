@@ -5,13 +5,13 @@ import { authManager } from "@/lib/auth";
 export function useAuth() {
   const session = authManager.getSession();
   
-  const { data: user, isLoading } = useQuery({
+  const { data: employeeUser, isLoading: isLoadingEmployee } = useQuery({
     queryKey: ['/api/employee/me'],
     enabled: session?.userType === 'employee',
     retry: false,
   });
 
-  const { data: admin } = useQuery({
+  const { data: adminUser, isLoading: isLoadingAdmin } = useQuery({
     queryKey: ['/api/admin/me'],
     enabled: session?.userType === 'admin',
     retry: false,
@@ -22,7 +22,7 @@ export function useAuth() {
       const endpoint = session?.userType === 'admin' ? '/api/admin/logout' : '/api/employee/logout';
       const headers = authManager.getAuthHeaders();
       
-      await apiRequest('POST', endpoint, undefined);
+      await apiRequest('POST', endpoint, undefined, headers);
     },
     onSuccess: () => {
       authManager.clearSession();
@@ -31,13 +31,16 @@ export function useAuth() {
     },
   });
 
+  const currentUser = session?.userType === 'employee' ? employeeUser : adminUser;
+  const isLoading = session?.userType === 'employee' ? isLoadingEmployee : isLoadingAdmin;
+
   return {
     isAuthenticated: authManager.isAuthenticated(),
     isEmployee: authManager.isEmployee(),
     isAdmin: authManager.isAdmin(),
-    user: session?.userType === 'employee' ? user : admin,
+    user: currentUser || session?.user,
     isLoading,
-    logout: logoutMutation.mutate,
+    logout: () => logoutMutation.mutate(),
     isLoggingOut: logoutMutation.isPending,
   };
 }
