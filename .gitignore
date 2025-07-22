@@ -4,3 +4,8 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Schema files
+schema.ts
+shared/schema.ts
+**/schema.ts
