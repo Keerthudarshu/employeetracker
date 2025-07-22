@@ -27,20 +27,20 @@ function Router() {
   return (
     <Switch>
       {/* Employee routes */}
-      <Route path="/">
-        {isAuthenticated && isEmployee ? <DailyReportForm /> : <EmployeeLogin />}
-      </Route>
-      <Route path="/daily-report">
-        {isAuthenticated && isEmployee ? <DailyReportForm /> : <EmployeeLogin />}
-      </Route>
+      <Route path="/" component={() => {
+        return isAuthenticated && isEmployee ? <DailyReportForm /> : <EmployeeLogin />;
+      }} />
+      <Route path="/daily-report" component={() => {
+        return isAuthenticated && isEmployee ? <DailyReportForm /> : <EmployeeLogin />;
+      }} />
       
       {/* Admin routes */}
-      <Route path="/admin">
-        {isAuthenticated && isAdmin ? <AdminDashboard /> : <AdminLogin />}
-      </Route>
-      <Route path="/admin/dashboard">
-        {isAuthenticated && isAdmin ? <AdminDashboard /> : <AdminLogin />}
-      </Route>
+      <Route path="/admin" component={() => {
+        return isAuthenticated && isAdmin ? <AdminDashboard /> : <AdminLogin />;
+      }} />
+      <Route path="/admin/dashboard" component={() => {
+        return isAuthenticated && isAdmin ? <AdminDashboard /> : <AdminLogin />;
+      }} />
       
       {/* Fallback */}
       <Route component={NotFound} />
